@@ -10,18 +10,41 @@ public static class ServiceCollectionsExtensions
     #region Extensions
 
     /// <summary>
-    /// Registers all items for given assemblies
+    /// Регитсрация класов из сборок. 
+    /// </summary>
+    /// <param name="host">Хост приложения</param>
+    /// <param name="assemblyNameStartWith">Начало названия просматриваемыз сборок. Если не указано - берется название сборки до первой точки</param>
+    /// <returns></returns>
+    public static IHostApplicationBuilder AddServiced(this IHostApplicationBuilder host, string? assemblyNameStartWith = null)
+    {
+        if (string.IsNullOrWhiteSpace(assemblyNameStartWith))
+            assemblyNameStartWith = Assembly.GetEntryAssembly()?.GetName().Name;
+
+        if (string.IsNullOrWhiteSpace(assemblyNameStartWith))
+            throw new InvalidOperationException("Not found EntryAssembly");
+
+        assemblyNameStartWith = assemblyNameStartWith.Split('.').First();
+
+        var asmbl = getAssemblies(assemblyNameStartWith);
+
+        return host.AddServiced(asmbl.First(), asmbl.Skip(1).ToArray());
+    }
+
+    /// <summary>
+    /// Регистрация помеченных классов из указанных сборок
     /// </summary>
     /// <param name="host"></param>
     /// <param name="assemblies"></param>
     /// <returns></returns>
-    public static IHostApplicationBuilder AddServiced(this IHostApplicationBuilder host, params Assembly[] assemblies)
+    public static IHostApplicationBuilder AddServiced(this IHostApplicationBuilder host, Assembly assembly, params Assembly[] assemblies)
     {
+        ArgumentNullException.ThrowIfNull(assembly);
         ArgumentNullException.ThrowIfNull(assemblies);
         ArgumentNullException.ThrowIfNull(host);
 
-        var registerTypes = (assemblies.Any() ? assemblies : getAssemblies())
-            .SelectMany(x =>
+        var asmbles = assemblies.Concat([assembly]);
+
+        var registerTypes = asmbles.SelectMany(x =>
             {
                 try
                 {
@@ -63,7 +86,7 @@ public static class ServiceCollectionsExtensions
             ?? throw new InvalidOperationException($"не найден метод {typeof(OptionsServiceCollectionExtensions).FullName}.{nameof(OptionsServiceCollectionExtensions.AddOptions)}({typeof(IServiceCollection).FullName}, {typeof(string).FullName})");
         var miBindConfiguration = typeof(OptionsBuilderConfigurationExtensions).GetMethod(nameof(OptionsBuilderConfigurationExtensions.BindConfiguration))
             ?? throw new InvalidOperationException($"не найден метод {typeof(OptionsBuilderConfigurationExtensions).FullName}.{nameof(OptionsBuilderConfigurationExtensions.BindConfiguration)}");
-        
+
         var miValidateDataAnnotations = typeof(OptionsBuilderDataAnnotationsExtensions).GetMethod(nameof(OptionsBuilderDataAnnotationsExtensions.ValidateDataAnnotations))
             ?? throw new InvalidOperationException($"не найден метод {typeof(OptionsBuilderDataAnnotationsExtensions).FullName}.{nameof(OptionsBuilderDataAnnotationsExtensions.ValidateDataAnnotations)}");
         var miValidateOnStart = typeof(OptionsBuilderExtensions).GetMethod(nameof(OptionsBuilderExtensions.ValidateOnStart))
@@ -132,9 +155,9 @@ public static class ServiceCollectionsExtensions
         return lifetime;
     }
 
-    private static IEnumerable<Assembly> getAssemblies()
+    private static IEnumerable<Assembly> getAssemblies(string startName)
     {
-        var loadedAss = AppDomain.CurrentDomain.GetAssemblies();
+        var loadedAss = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.GetName().FullName.StartsWith(startName));
         var loadedAssNames = loadedAss.Select(x => x.FullName).ToList();
         var stack = new Stack<Assembly>(loadedAss);
 
@@ -144,7 +167,7 @@ public static class ServiceCollectionsExtensions
 
             yield return asm;
 
-            foreach (var reference in asm.GetReferencedAssemblies())
+            foreach (var reference in asm.GetReferencedAssemblies().Where(x => x.FullName.StartsWith(startName)))
                 if (!loadedAssNames.Contains(reference.FullName))
                 {
                     try
