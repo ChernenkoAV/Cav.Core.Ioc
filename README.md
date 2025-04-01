@@ -1,6 +1,6 @@
 # Cav.Core.Ioc
 
-[![nuget]](https://www.nuget.org/packages/Cav.Core/)
+[nuget](https://www.nuget.org/packages/Cav.Core/)
 <img alt="NuGet Version" src="https://img.shields.io/nuget/v/Cav.Core.svg" />
 
 Еще одна утилита для работы с Microsoft DI.
