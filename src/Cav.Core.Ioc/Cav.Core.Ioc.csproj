@@ -16,7 +16,7 @@
 
     <PropertyGroup>
         <PackageVersion>0.1.1</PackageVersion>
-        <Description>A set of utilities that facilitate routine operations</Description>
+        <Description>Another utility for working with Microsoft DI</Description>
         <PackageTags>$(PackageTags) di utils</PackageTags>
     </PropertyGroup>
 

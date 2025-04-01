@@ -44,12 +44,12 @@
         <GenerateSerializationAssemblies>off</GenerateSerializationAssemblies>
     </PropertyGroup>
 
-    <PropertyGroup Condition="Exists('$(MSBuildProjectDirectory)/../../README.md')">
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PropertyGroup Condition="Exists('$(MSBuildProjectDirectory)/../PACKAGE.md')">
+        <PackageReadmeFile>PACKAGE.md</PackageReadmeFile>
     </PropertyGroup>
 
-    <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)/../../README.md')">
-        <None Include="$(MSBuildProjectDirectory)\..\..\README.md" Pack="true" PackagePath=""/>
+    <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)/../PACKAGE.md')">
+        <None Include="$(MSBuildProjectDirectory)\..\PACKAGE.md" Pack="true" PackagePath=""/>
     </ItemGroup>
 
     <ItemGroup>

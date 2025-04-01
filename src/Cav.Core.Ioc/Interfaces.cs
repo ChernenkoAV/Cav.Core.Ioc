@@ -39,7 +39,7 @@ public sealed class OptionConfigAttribute(string sectionPath) : Attribute
     /// </summary>
     public string SectionPath { get; } = sectionPath;
     /// <summary>
-    /// Иенование экземпляра опций
+    /// Именование экземпляра опций
     /// </summary>
     public string OptionsName { get; set; } = string.Empty;
     /// <summary>
