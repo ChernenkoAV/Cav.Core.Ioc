@@ -25,7 +25,7 @@ public static class ServiceCollectionsExtensions
 
         assemblyNameStartWith = assemblyNameStartWith.Split('.').First();
 
-        var asmbl = getAssemblies(assemblyNameStartWith);
+        var asmbl = IocHelper.LoadAssemblies(assemblyNameStartWith);
 
         return host.AddServiced(asmbl.First(), asmbl.Skip(1).ToArray());
     }
@@ -42,25 +42,7 @@ public static class ServiceCollectionsExtensions
         ArgumentNullException.ThrowIfNull(assemblies);
         ArgumentNullException.ThrowIfNull(host);
 
-        var asmbles = assemblies.Concat([assembly]);
-
-        var registerTypes = asmbles.SelectMany(x =>
-            {
-                try
-                {
-                    return x.GetTypes();
-                }
-                catch (ReflectionTypeLoadException rtle)
-                {
-                    return rtle.Types;
-                }
-                catch
-                {
-                    return [];
-                }
-            })
-            .Where(t => typeof(IServiced).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
-            .Select(x => (Implement: x!, IsOption: typeof(IOption).IsAssignableFrom(x)));
+        var registerTypes = IocHelper.LoadImplements(assemblies.Concat([assembly]));
 
         registerOptions(host.Services, registerTypes.Where(x => x.IsOption).Select(x => x.Implement));
         registerWithTypes(host.Services, registerTypes.Where(x => !x.IsOption).Select(x => x.Implement));
@@ -137,8 +119,6 @@ public static class ServiceCollectionsExtensions
 
     #endregion Registration
 
-    #region Helpers
-
     private static ServiceLifetime getLifetime(Type serviceToRegister)
     {
         var lifetime = ServiceLifetime.Transient;
@@ -154,34 +134,4 @@ public static class ServiceCollectionsExtensions
 
         return lifetime;
     }
-
-    private static IEnumerable<Assembly> getAssemblies(string startName)
-    {
-        var loadedAss = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.GetName().FullName.StartsWith(startName));
-        var loadedAssNames = loadedAss.Select(x => x.FullName).ToList();
-        var stack = new Stack<Assembly>(loadedAss);
-
-        do
-        {
-            var asm = stack.Pop();
-
-            yield return asm;
-
-            foreach (var reference in asm.GetReferencedAssemblies().Where(x => x.FullName.StartsWith(startName)))
-                if (!loadedAssNames.Contains(reference.FullName))
-                {
-                    try
-                    {
-                        stack.Push(Assembly.Load(reference));
-                    }
-                    catch { }
-
-                    loadedAssNames.Add(reference.FullName);
-                }
-        }
-        while (stack.Count > 0);
-
-    }
-
-    #endregion Helpers
 }
