@@ -29,7 +29,7 @@ public interface IOption : IServiced { }
 /// Настройка опций
 /// </summary>
 /// <param name="sectionPath"></param>
-[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
 public sealed class OptionConfigAttribute(string sectionPath) : Attribute
 {
     public OptionConfigAttribute() : this(string.Empty) { }
