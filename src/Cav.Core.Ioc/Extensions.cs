@@ -103,7 +103,12 @@ public static class ServiceCollectionsExtensions
 
             services.Add(new ServiceDescriptor(serviceType, serviceType, lifetime));
 
-            foreach (var tInterface in serviceType.GetInterfaces().Where(x => !typeof(IServiced).IsAssignableFrom(x)).ToArray())
+            foreach (var tInterface in serviceType.GetInterfaces()
+                .Where(x =>
+                    !typeof(IServiced).IsAssignableFrom(x) &&
+                    !typeof(IDisposable).IsAssignableFrom(x)
+                    )
+                .ToArray())
             {
                 services.Add(new ServiceDescriptor(tInterface, serviceType, lifetime));
             }
@@ -111,7 +116,8 @@ public static class ServiceCollectionsExtensions
             var baseClass = serviceType.BaseType ?? typeof(object);
             while (baseClass != typeof(object))
             {
-                services.Add(new ServiceDescriptor(baseClass, serviceType, lifetime));
+                if (baseClass.IsAbstract)
+                    services.Add(new ServiceDescriptor(baseClass, serviceType, lifetime));
                 baseClass = baseClass.BaseType ?? typeof(object);
             }
         }
