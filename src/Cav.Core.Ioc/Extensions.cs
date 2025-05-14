@@ -105,9 +105,11 @@ public static class ServiceCollectionsExtensions
 
             foreach (var tInterface in serviceType.GetInterfaces()
                 .Where(x =>
-                    !typeof(IServiced).IsAssignableFrom(x) &&
-                    !typeof(IDisposable).IsAssignableFrom(x)
-                    )
+                    x != typeof(ISingleton) &&
+                    x != typeof(ITransient) &&
+                    x != typeof(IScoped) &&
+                    x != typeof(IServiced) &&
+                    x != typeof(IDisposable))
                 .ToArray())
             {
                 services.Add(new ServiceDescriptor(tInterface, serviceType, lifetime));
