@@ -10,10 +10,10 @@ public static class ServiceCollectionsExtensions
     #region Extensions
 
     /// <summary>
-    /// Регитсрация класов из сборок. 
+    /// Регистрация классов из сборок, помеченных интерфейсами  
     /// </summary>
     /// <param name="host">Хост приложения</param>
-    /// <param name="assemblyNameStartWith">Начало названия просматриваемыз сборок. Если не указано - берется название сборки до первой точки</param>
+    /// <param name="assemblyNameStartWith">Начало названия просматриваемых сборок. Если не указано - берется название сборки EntryAssembly до первой точки</param>
     /// <returns></returns>
     public static IHostApplicationBuilder AddServiced(this IHostApplicationBuilder host, string? assemblyNameStartWith = null)
     {
@@ -51,7 +51,7 @@ public static class ServiceCollectionsExtensions
     }
 
     /// <summary>
-    /// Registers all items for calling assembly
+    /// Регистрация помеченных классов из вызывающей сборки
     /// </summary>
     /// <param name="host"></param>
     /// <returns></returns>
