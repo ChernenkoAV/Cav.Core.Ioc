@@ -119,7 +119,7 @@ public static class ServiceCollectionsExtensions
             while (baseClass != typeof(object))
             {
                 if (baseClass.IsAbstract)
-                    services.Add(new ServiceDescriptor(baseClass, serviceType, lifetime));
+                    services.Add(new ServiceDescriptor(baseClass, sp => sp.GetRequiredService(serviceType), lifetime));
                 baseClass = baseClass.BaseType ?? typeof(object);
             }
         }
@@ -127,19 +127,10 @@ public static class ServiceCollectionsExtensions
 
     #endregion Registration
 
-    private static ServiceLifetime getLifetime(Type serviceToRegister)
-    {
-        var lifetime = ServiceLifetime.Transient;
-
-        if (typeof(IScoped).IsAssignableFrom(serviceToRegister))
-        {
-            lifetime = ServiceLifetime.Scoped;
-        }
-        else if (typeof(ISingleton).IsAssignableFrom(serviceToRegister))
-        {
-            lifetime = ServiceLifetime.Singleton;
-        }
-
-        return lifetime;
-    }
+    private static ServiceLifetime getLifetime(Type serviceToRegister) =>
+        typeof(IScoped).IsAssignableFrom(serviceToRegister)
+        ? ServiceLifetime.Scoped
+        : typeof(ISingleton).IsAssignableFrom(serviceToRegister)
+            ? ServiceLifetime.Singleton
+            : ServiceLifetime.Transient;
 }
