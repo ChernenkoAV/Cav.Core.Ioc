@@ -112,15 +112,15 @@ public static class ServiceCollectionsExtensions
                     x != typeof(IDisposable))
                 .ToArray())
             {
-                services.Add(new ServiceDescriptor(tInterface, serviceType, lifetime));
+                services.Add(new ServiceDescriptor(tInterface, sp => sp.GetRequiredService(serviceType), lifetime));
             }
 
-            var baseClass = serviceType.BaseType ?? typeof(object);
-            while (baseClass != typeof(object))
+            var baseClass = serviceType.BaseType;
+            while (baseClass is not null)
             {
                 if (baseClass.IsAbstract)
                     services.Add(new ServiceDescriptor(baseClass, sp => sp.GetRequiredService(serviceType), lifetime));
-                baseClass = baseClass.BaseType ?? typeof(object);
+                baseClass = baseClass.BaseType;
             }
         }
     }

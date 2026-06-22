@@ -4,7 +4,7 @@
         <RepositoryUrl>https://github.com/ChernenkoAV/Cav.Core.Ioc.git</RepositoryUrl>
         <PackageProjectUrl>https://github.com/ChernenkoAV/Cav.Core.Ioc</PackageProjectUrl>
 
-        <TargetFrameworks>net8.0</TargetFrameworks>
+        <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <PackageVersion>0.4.0</PackageVersion>
+        <PackageVersion>0.5.0</PackageVersion>
         <Description>Another utility for working with Microsoft DI</Description>
         <PackageTags>$(PackageTags) di utils</PackageTags>
     </PropertyGroup>
